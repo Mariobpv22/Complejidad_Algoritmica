@@ -3,8 +3,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 # Configura tus credenciales de la API de Spotify
-CLIENT_ID = 'Insertar client ID de spotify api'
-CLIENT_SECRET = 'Insertar client Secret de spotify api'
+CLIENT_ID = 'Insertar cliente ID de Spotify'
+CLIENT_SECRET = 'Insertar client secret de Spotify'
 
 # Número de canciones que deseas extraer
 NUM_CANCIONES = 1500
@@ -14,17 +14,15 @@ HEADER = ['Artista', 'Canción', 'Duración (segundos)', 'Álbum', 'Año', 'Gén
 
 # Función para obtener los datos de una canción
 def obtener_datos_cancion(cancion):
-    artistas = [artista['name'] for artista in cancion['artists']]
+    artistas = ', '.join([artista['name'] for artista in cancion['artists']])
     nombre_cancion = cancion['name']
     duracion_ms = cancion['duration_ms']
     duracion_segundos = duracion_ms // 1000
     album = cancion['album']['name']
     año = cancion['album']['release_date'][:4]
-    genero = cancion['album'].get('genres', [''])[0]
+    genero = cancion.get('genres', [''])[0]
     
-    return artistas, nombre_cancion, duracion_segundos, album, año, genero
-
-
+    return [artistas], [nombre_cancion], [duracion_segundos], [album], [año], [genero]
 
 # Función principal para obtener las canciones
 def obtener_canciones(playlist_id):
@@ -61,12 +59,12 @@ def obtener_canciones(playlist_id):
 # Función para escribir los datos en un archivo CSV
 def escribir_csv(canciones):
     with open('canciones.csv', mode='w', encoding='utf-8', newline='') as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file, quoting=csv.QUOTE_NONE, escapechar='\\')
         writer.writerow(HEADER)
-        
+
         for cancion in canciones:
-            writer.writerow(cancion)
-    
+            writer.writerow([c[0] for c in cancion])
+
     print('Archivo CSV generado correctamente.')
 
 # Obtener las canciones y escribir el archivo CSV
